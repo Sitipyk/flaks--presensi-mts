@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Riwayat Presensi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .badge-status {
+            padding: 4px 8px;
+            font-size: 0.85rem;
+            border-radius: 5px;
+        }
+        .badge-Hadir { background-color: #28a745; color: white; }
+        .badge-Izin { background-color: #ffc107; color: black; }
+        .badge-Sakit { background-color: #dc3545; color: white; }
+        .badge-Terlambat { background-color: #ff6b6b; color: white; margin-left: 5px; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">MTs Nurul Huda</a>
+    <div>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light btn-sm">Dashboard</a>
+        <a href="{{ url_for('riwayat') }}" class="btn btn-light btn-sm">Riwayat</a>
+        <a href="{{ url_for('profil') }}" class="btn btn-outline-light btn-sm">Profil</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm">Logout</a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h4>Riwayat Presensi - {{ user.name }}</h4>
+
+    <!-- 📅 Filter Bulan -->
+    <form method="get" class="form-inline mb-3">
+        <label for="bulan">Filter Bulan:</label>
+        <input type="month" name="bulan" class="form-control mx-2" value="{{ bulan }}">
+        <button type="submit" class="btn btn-primary btn-sm">Tampilkan</button>
+    </form>
+
+    <!-- 📊 Rekap Kehadiran -->
+    <div class="mb-3">
+        <strong>Rekap Kehadiran:</strong><br>
+        Hadir: {{ rekap.get('Hadir', 0) }} |
+        Izin: {{ rekap.get('Izin', 0) }} |
+        Sakit: {{ rekap.get('Sakit', 0) }}
+    </div>
+
+    <!-- 📋 Tabel Riwayat -->
+    <table class="table table-bordered mt-3">
+        <thead class="thead-dark">
+            <tr>
+                <th>Tanggal</th>
+                <th>Masuk</th>
+                <th>Keluar</th>
+                <th>Status</th>
+                <th>Keterangan</th>
+                <th>Lokasi</th>
+                <th>Foto Wajah</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in riwayat %}
+            <tr>
+                <td>{{ row[0] }}</td>
+                <td>
+                    {{ row[1] }}
+                    {% if row[1] and row[1] > '07:00' %}
+                        <span class="badge badge-Terlambat">Terlambat</span>
+                    {% endif %}
+                </td>
+                <td>{{ row[2] }}</td>
+                <td>
+                    <span class="badge badge-status badge-{{ row[3] }}">{{ row[3] }}</span>
+                </td>
+                <td>{{ row[4] }}</td>
+                <td>
+                    {% if row[5] and row[6] %}
+                        <a href="https://www.google.com/maps?q={{ row[5] }},{{ row[6] }}" target="_blank">Lihat Lokasi</a>
+                    {% else %}
+                        Lokasi tidak tersedia
+                    {% endif %}
+                </td>
+                <td>
+                    {% if row[7] %}
+                        <img src="{{ url_for('static', filename='foto/' + row[7]) }}" width="80" height="100" alt="Foto">
+                    {% else %}
+                        Tidak ada foto
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- 🔙 Tombol Kembali -->
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-sm mt-2">← Kembali ke Dashboard</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Daftar Akun - MTs Nurul Huda</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background: #f0f2f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .card {
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 420px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h4 class="text-center mb-4">Buat Akun</h4>
+        {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+    
+        <form method="POST">
+            <div class="form-group">
+                <label>Nama</label>
+                <input type="text" class="form-control" name="name" required>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="text" class="form-control" name="email" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" class="form-control" name="password" required>
+            </div>
+            <div class="form-group">
+                <label>confirm_password</label>
+                <input type="password" class="form-control" name="confirm_password" required>
+            </div>
+
+            <div class="form-group">
+                <label>NIP</label>
+                <input type="text" class="form-control" name="nip">
+            </div>
+            <div class="form-group">
+                <label>Jabatan</label>
+                <input type="text" class="form-control" name="jabatan">
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select class="form-control" name="status">
+                    <option value="Aktif">Aktif</option>
+                    <option value="Tidak Aktif">Tidak Aktif</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Peran (Role)</label>
+                <select class="form-control" name="role" required>
+                    <option value="">-- Pilih Role --</option>
+                    <option value="GURU">Guru</option>
+                    <option value="KARYAWAN">Karyawan</option>
+                    <option value="KEPALA SEKOLAH">Kepala Sekolah</option>
+                    <option value="ADMIN">Admin</option>
+    
+                </select>
+            </div>
+            <button class="btn btn-primary btn-block" type="submit">Daftar</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

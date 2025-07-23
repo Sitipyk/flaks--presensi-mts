@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Presensi Harian</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+  <style>
+    video, canvas {
+      max-width: 100%;
+      height: auto;
+    }
+    #preview {
+      width: 300px;
+      height: 225px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+<div class="container mt-4">
+  <h3>Presensi Hari Ini ({{ tanggal }})</h3>
+  <form method="POST">
+    <div class="mb-3">
+      <label for="waktu_masuk" class="form-label">Waktu Masuk</label>
+      <input type="time" class="form-control" id="waktu_masuk" name="waktu_masuk" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="waktu_keluar" class="form-label">Waktu Keluar</label>
+      <input type="time" class="form-control" id="waktu_keluar" name="waktu_keluar">
+    </div>
+
+    <div class="mb-3">
+      <label for="status" class="form-label">Status</label>
+      <select class="form-select" id="status" name="status" required>
+        <option value="">-- Pilih Status --</option>
+        <option value="Hadir">Hadir</option>
+        <option value="Sakit">Sakit</option>
+        <option value="Izin">Izin</option>
+        <option value="Alpha">Alpha</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="keterangan" class="form-label">Keterangan</label>
+      <input type="text" class="form-control" id="keterangan" name="keterangan" placeholder="Opsional">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Lokasi (GPS)</label>
+      <input type="text" class="form-control" id="latitude" name="latitude" placeholder="Latitude" readonly>
+      <input type="text" class="form-control mt-2" id="longitude" name="longitude" placeholder="Longitude" readonly>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Foto Presensi</label><br>
+      <video id="video" autoplay></video>
+      <canvas id="preview" style="display: none;"></canvas>
+      <input type="hidden" name="image_data" id="image_data">
+      <button type="button" class="btn btn-sm btn-primary mt-2" id="capture">Ambil Foto</button>
+    </div>
+
+    <button type="submit" class="btn btn-success">Submit Presensi</button>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Kembali</a>
+  </form>
+</div>
+
+<script>
+  // Ambil kamera
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('preview');
+  const imageDataInput = document.getElementById('image_data');
+
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => {
+      video.srcObject = stream;
+    }).catch(error => {
+      alert("Tidak dapat mengakses kamera.");
+    });
+
+  document.getElementById('capture').addEventListener('click', function () {
+    canvas.style.display = 'block';
+    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+    imageDataInput.value = canvas.toDataURL('image/jpeg');
+  });
+
+  // Ambil lokasi GPS
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function (position) {
+      document.getElementById('latitude').value = position.coords.latitude;
+      document.getElementById('longitude').value = position.coords.longitude;
+    }, function () {
+      alert("Gagal mendapatkan lokasi.");
+    });
+  } else {
+    alert("Browser tidak mendukung geolocation.");
+  }
+</script>
+</body>
+</html>

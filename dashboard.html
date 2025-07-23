@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - MTs Nurul Huda</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { background-color: #f8f9fa; }
+    .navbar { background-color: #0056b3; }
+    .navbar-brand, .nav-link { color: white !important; font-weight: 500; }
+    .nav-link:hover { color: #d1e3ff !important; }
+
+    .card {
+      margin-top: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    #chatbox {
+      position: fixed;
+      bottom: 15px;
+      right: 15px;
+      width: 220px;
+      max-height: 320px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+    }
+    #chatbox-header {
+      background-color: #0056b3;
+      color: white;
+      padding: 8px;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      font-weight: bold;
+      text-align: center;
+    }
+    #chatbox-messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      font-size: 0.85rem;
+    }
+    #chatbox-input {
+      display: flex;
+      border-top: 1px solid #ccc;
+    }
+    #chatbox-input input {
+      flex: 1;
+      border: none;
+      padding: 8px;
+      font-size: 0.85rem;
+    }
+    #chatbox-input button {
+      border: none;
+      background: #0056b3;
+      color: white;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand" href="#">MTs Nurul Huda</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon bg-light rounded"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        {% if user.role == 'ADMIN' %}
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('kelola_guru') }}">Kelola Guru</a></li>
+        {% endif %}
+        {% if user.role in ['KARYAWAN', 'GURU', 'ADMIN', 'KEPALA SEKOLAH'] %}
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('presensi') }}">Presensi</a></li>
+        {% endif %}
+        {% if user.role in ['ADMIN', 'KEPALA SEKOLAH'] %}
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('rekap') }}">Rekap</a></li>
+        {% endif %}
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('riwayat') }}">Riwayat</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('profil') }}">Profil</a></li>
+        <li class="nav-item"><a class="nav-link text-warning" href="{{ url_for('logout') }}">Logout</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Konten -->
+<div class="container">
+  <div class="card p-4">
+    <h4>Selamat Datang, {{ user.name }} <span class="text-muted">(Role: {{ user.role }})</span></h4>
+
+    <hr>
+    {% if user.role in ['KARYAWAN', 'GURU'] %}
+    <form action="{{ url_for('presensi') }}" method="post" class="mb-3">
+      <button type="submit" class="btn btn-success">Presensi Masuk</button>
+    </form>
+
+    <h5>Riwayat Presensi Terakhir</h5>
+    <table class="table table-bordered table-striped">
+      <thead class="table-primary">
+        <tr><th>Tanggal</th><th>Waktu Masuk</th><th>Waktu Keluar</th><th>Status</th><th>Keterangan</th></tr>
+      </thead>
+      <tbody>
+        {% for hadir in riwayat %}
+        <tr>
+          <td>{{ hadir[0] }}</td>
+          <td>{{ hadir[1] or '-' }}</td>
+          <td>{{ hadir[2] or '-' }}</td>
+          <td>{{ hadir[3] }}</td>
+          <td>{{ hadir[4] or '-' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="text-center">Belum ada data</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+
+    <hr>
+    <h5>Statistik Kehadiran 7 Hari Terakhir</h5>
+    <canvas id="chartPresensi" height="100"></canvas>
+  </div>
+</div>
+
+<!-- Grafik -->
+<script>
+  let chartLabels = JSON.parse('{{ labels | tojson | safe }}');
+  let chartData = JSON.parse('{{ data | tojson | safe }}');
+
+  const ctx = document.getElementById('chartPresensi').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: chartLabels,
+      datasets: [{
+        label: 'Jumlah Presensi',
+        data: chartData,
+        backgroundColor: '#0d6efd'
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+      }
+    }
+  });
+</script>
+
+<!-- Chatbot -->
+<div id="chatbox">
+  <div id="chatbox-header">Chatbot</div>
+  <div id="chatbox-messages"></div>
+  <div id="chatbox-input">
+    <input type="text" id="chat-input" placeholder="Tulis pertanyaan...">
+    <button onclick="sendMessage()">Kirim</button>
+  </div>
+</div>
+
+<script>
+  function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const message = input.value.trim();
+    if (!message) return;
+
+    const messages = document.getElementById('chatbox-messages');
+    messages.innerHTML += <div><strong>Kamu:</strong> ${message}</div>;
+    input.value = '';
+
+    fetch("{{ url_for('chatbot') }}", {
+      method: "POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message })
+    })
+    .then(res => res.json())
+    .then(data => {
+      messages.innerHTML += <div><strong>Bot:</strong> ${data.response}</div>;
+      messages.scrollTop = messages.scrollHeight;
+    });
+  }
+</script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
