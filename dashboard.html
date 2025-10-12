@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -90,6 +91,7 @@
         {% endif %}
         <li class="nav-item"><a class="nav-link" href="{{ url_for('riwayat') }}">Riwayat</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('profil') }}">Profil</a></li>
+
         <li class="nav-item"><a class="nav-link text-warning" href="{{ url_for('logout') }}">Logout</a></li>
       </ul>
     </div>
@@ -100,12 +102,6 @@
 <div class="container">
   <div class="card p-4">
     <h4>Selamat Datang, {{ user.name }} <span class="text-muted">(Role: {{ user.role }})</span></h4>
-
-    <hr>
-    {% if user.role in ['KARYAWAN', 'GURU'] %}
-    <form action="{{ url_for('presensi') }}" method="post" class="mb-3">
-      <button type="submit" class="btn btn-success">Presensi Masuk</button>
-    </form>
 
     <h5>Riwayat Presensi Terakhir</h5>
     <table class="table table-bordered table-striped">
@@ -124,75 +120,44 @@
         {% else %}
         <tr><td colspan="5" class="text-center">Belum ada data</td></tr>
         {% endfor %}
-      </tbody>
-    </table>
-    {% endif %}
+        <!-- Chatbot Box -->
+        <div id="chatbox">
+          <div id="chatbox-header">Chatbot</div>
+          <div id="chatbox-messages"></div>
+          <div id="chatbox-input">
+            <input type="text" id="chat-input" placeholder="Tanya presensi...">
+            <button onclick="sendMessage()">Kirim</button>
+          </div>
+        </div>
+        <script>
+          const messagesEl = document.getElementById('chatbox-messages');
 
-    <hr>
-    <h5>Statistik Kehadiran 7 Hari Terakhir</h5>
-    <canvas id="chartPresensi" height="100"></canvas>
-  </div>
-</div>
+          function appendMessage(sender, text) {
+            const msg = document.createElement('div');
+            msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
+            messagesEl.appendChild(msg);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+          }
 
-<!-- Grafik -->
-<script>
-  let chartLabels = JSON.parse('{{ labels | tojson | safe }}');
-  let chartData = JSON.parse('{{ data | tojson | safe }}');
+          async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+            appendMessage('Kamu', message);
+            input.value = '';
 
-  const ctx = document.getElementById('chartPresensi').getContext('2d');
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: chartLabels,
-      datasets: [{
-        label: 'Jumlah Presensi',
-        data: chartData,
-        backgroundColor: '#0d6efd'
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: { beginAtZero: true, ticks: { stepSize: 1 } }
-      }
-    }
-  });
-</script>
+            const response = await fetch('{{ url_for("chatbot") }}', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ message })
+            });
 
-<!-- Chatbot -->
-<div id="chatbox">
-  <div id="chatbox-header">Chatbot</div>
-  <div id="chatbox-messages"></div>
-  <div id="chatbox-input">
-    <input type="text" id="chat-input" placeholder="Tulis pertanyaan...">
-    <button onclick="sendMessage()">Kirim</button>
-  </div>
-</div>
+            const data = await response.json();
+            appendMessage('Bot', data.response);
+          }
 
-<script>
-  function sendMessage() {
-    const input = document.getElementById('chat-input');
-    const message = input.value.trim();
-    if (!message) return;
-
-    const messages = document.getElementById('chatbox-messages');
-    messages.innerHTML += <div><strong>Kamu:</strong> ${message}</div>;
-    input.value = '';
-
-    fetch("{{ url_for('chatbot') }}", {
-      method: "POST",
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message })
-    })
-    .then(res => res.json())
-    .then(data => {
-      messages.innerHTML += <div><strong>Bot:</strong> ${data.response}</div>;
-      messages.scrollTop = messages.scrollHeight;
-    });
-  }
-</script>
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+          // Kirim pesan ketika tekan Enter
+          document.getElementById('chat-input').addEventListener('keypress', function(e){
+            if (e.key === 'Enter') sendMessage();
+          });
+        </script>
