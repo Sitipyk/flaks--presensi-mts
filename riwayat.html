@@ -4,97 +4,263 @@
     <meta charset="UTF-8">
     <title>Riwayat Presensi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        body { 
+            background-color: #f8f9fa; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar { 
+            background-color: #0056b3; 
+        }
+
+        .navbar-brand, .nav-link { 
+            color: white !important; 
+            font-weight: 500; 
+        }
+
+        .nav-link:hover { 
+            color: #d1e3ff !important; 
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        h4 {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
         .badge-status {
-            padding: 4px 8px;
+            padding: 5px 10px;
             font-size: 0.85rem;
             border-radius: 5px;
+            font-weight: 500;
         }
-        .badge-Hadir { background-color: #28a745; color: white; }
-        .badge-Izin { background-color: #ffc107; color: black; }
-        .badge-Sakit { background-color: #dc3545; color: white; }
-        .badge-Terlambat { background-color: #ff6b6b; color: white; margin-left: 5px; }
+
+        .badge-Hadir { 
+            background-color: #28a745; 
+            color: white; 
+        }
+
+        .badge-Izin { 
+            background-color: #ffc107; 
+            color: black; 
+        }
+
+        .badge-Sakit { 
+            background-color: #dc3545; 
+            color: white; 
+        }
+
+        .badge-Terlambat { 
+            background-color: #ff6b6b; 
+            color: white; 
+            margin-left: 5px;
+            font-size: 0.75rem;
+        }
+
+        .table thead {
+            background-color: #0056b3;
+            color: white;
+        }
+
+        .table th {
+            border: none;
+            padding: 12px 15px;
+        }
+
+        .table td {
+            padding: 10px 15px;
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .btn-primary {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .btn-primary:hover {
+            background-color: #004494;
+            border-color: #004494;
+        }
+
+        .btn-outline-light:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .form-control:focus {
+            border-color: #0056b3;
+            box-shadow: 0 0 0 0.2rem rgba(0, 86, 179, 0.25);
+        }
+
+        .rekap-box {
+            background-color: #e3f2fd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #0056b3;
+        }
+
+        .rekap-item {
+            display: inline-block;
+            margin-right: 20px;
+            font-weight: 500;
+        }
+
+        .rekap-item.hadir { color: #28a745; }
+        .rekap-item.izin { color: #ffc107; }
+        .rekap-item.sakit { color: #dc3545; }
+
+        .filter-box {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        img {
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        a {
+            color: #0056b3;
+        }
+
+        a:hover {
+            color: #004494;
+            text-decoration: none;
+        }
+
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
-<nav class="navbar navbar-dark bg-dark">
-    <a class="navbar-brand" href="#">MTs Nurul Huda</a>
-    <div>
-        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light btn-sm">Dashboard</a>
-        <a href="{{ url_for('riwayat') }}" class="btn btn-light btn-sm">Riwayat</a>
-        <a href="{{ url_for('profil') }}" class="btn btn-outline-light btn-sm">Profil</a>
-        <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm">Logout</a>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">MTs Nurul Huda</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('riwayat') }}">Riwayat</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('profil') }}">Profil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-warning" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h4>Riwayat Presensi - {{ user.name }}</h4>
+
+        <!-- 📅 Filter Bulan -->
+        <div class="filter-box">
+            <form method="get" class="row g-3 align-items-center">
+                <div class="col-auto">
+                    <label for="bulan" class="col-form-label"><strong>Filter Bulan:</strong></label>
+                </div>
+                <div class="col-auto">
+                    <input type="month" name="bulan" class="form-control" value="{{ bulan }}">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">Tampilkan</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 📊 Rekap Kehadiran -->
+        <div class="rekap-box">
+            <strong>Rekap Kehadiran:</strong><br>
+            <span class="rekap-item hadir">Hadir: {{ rekap.get('Hadir', 0) }}</span>
+            <span class="rekap-item izin">Izin: {{ rekap.get('Izin', 0) }}</span>
+            <span class="rekap-item sakit">Sakit: {{ rekap.get('Sakit', 0) }}</span>
+        </div>
+
+        <!-- 📋 Tabel Riwayat -->
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Masuk</th>
+                        <th>Keluar</th>
+                        <th>Status</th>
+                        <th>Keterangan</th>
+                        <th>Lokasi</th>
+                        <th>Foto Wajah</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in riwayat %}
+                    <tr>
+                        <td>{{ row[0] }}</td>
+                        <td>
+                            {{ row[1] }}
+                            {% if row[1] and row[1] > '07:00' %}
+                                <span class="badge badge-Terlambat">Terlambat</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ row[2] }}</td>
+                        <td>
+                            <span class="badge badge-status badge-{{ row[3] }}">{{ row[3] }}</span>
+                        </td>
+                        <td>{{ row[4] }}</td>
+                        <td>
+                            {% if row[5] and row[6] %}
+                                <a href="https://www.google.com/maps?q={{ row[5] }},{{ row[6] }}" target="_blank" class="btn btn-outline-primary btn-sm">Lihat Lokasi</a>
+                            {% else %}
+                                <span class="text-muted">Lokasi tidak tersedia</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if row[7] %}
+                                <img src="{{ url_for('static', filename='foto/' + row[7]) }}" width="80" height="100" alt="Foto" class="img-thumbnail">
+                            {% else %}
+                                <span class="text-muted">Tidak ada foto</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 🔙 Tombol Kembali -->
+        <div class="mt-4">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">← Kembali ke Dashboard</a>
+        </div>
     </div>
-</nav>
 
-<div class="container mt-4">
-    <h4>Riwayat Presensi - {{ user.name }}</h4>
-
-    <!-- 📅 Filter Bulan -->
-    <form method="get" class="form-inline mb-3">
-        <label for="bulan">Filter Bulan:</label>
-        <input type="month" name="bulan" class="form-control mx-2" value="{{ bulan }}">
-        <button type="submit" class="btn btn-primary btn-sm">Tampilkan</button>
-    </form>
-
-    <!-- 📊 Rekap Kehadiran -->
-    <div class="mb-3">
-        <strong>Rekap Kehadiran:</strong><br>
-        Hadir: {{ rekap.get('Hadir', 0) }} |
-        Izin: {{ rekap.get('Izin', 0) }} |
-        Sakit: {{ rekap.get('Sakit', 0) }}
-    </div>
-
-    <!-- 📋 Tabel Riwayat -->
-    <table class="table table-bordered mt-3">
-        <thead class="thead-dark">
-            <tr>
-                <th>Tanggal</th>
-                <th>Masuk</th>
-                <th>Keluar</th>
-                <th>Status</th>
-                <th>Keterangan</th>
-                <th>Lokasi</th>
-                <th>Foto Wajah</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in riwayat %}
-            <tr>
-                <td>{{ row[0] }}</td>
-                <td>
-                    {{ row[1] }}
-                    {% if row[1] and row[1] > '07:00' %}
-                        <span class="badge badge-Terlambat">Terlambat</span>
-                    {% endif %}
-                </td>
-                <td>{{ row[2] }}</td>
-                <td>
-                    <span class="badge badge-status badge-{{ row[3] }}">{{ row[3] }}</span>
-                </td>
-                <td>{{ row[4] }}</td>
-                <td>
-                    {% if row[5] and row[6] %}
-                        <a href="https://www.google.com/maps?q={{ row[5] }},{{ row[6] }}" target="_blank">Lihat Lokasi</a>
-                    {% else %}
-                        Lokasi tidak tersedia
-                    {% endif %}
-                </td>
-                <td>
-                    {% if row[7] %}
-                        <img src="{{ url_for('static', filename='foto/' + row[7]) }}" width="80" height="100" alt="Foto">
-                    {% else %}
-                        Tidak ada foto
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <!-- 🔙 Tombol Kembali -->
-    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-sm mt-2">← Kembali ke Dashboard</a>
-</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
